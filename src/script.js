@@ -1,4 +1,25 @@
 (async () => {
+    async function waitForElement(selector) {
+        const existingElement = document.querySelector(selector);
+        if (existingElement) return existingElement;
+      
+        return new Promise(resolve => {
+          const observer = new MutationObserver(() => {
+            const element = document.querySelector(selector);
+      
+            if (element) {
+              observer.disconnect();
+              resolve(element);
+            }
+          });
+      
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+        });
+    }
+
     // Save user options
     const DB_NAME = "enhanced-db";
     const STORE_NAME = "background";
@@ -48,20 +69,19 @@
 
             request.onerror = () => reject(request.error);
         });
-        }
+    }
     
-
-
     const maxBlur = 5; // Maximum blur value in rem
     const maxOpacity = 0.5; // Maximum opacity value
 
     // Add enhancer menu to the DOM
-    await fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/index.html')
+
+    await fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/src/index.html')
         .then(response => response.text())
         .then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
         });
-
+    
     // Update the blur value when the slider is moved
     document.querySelector('enhanced .en-slider input#blur').addEventListener('input', (event) => {
         const value = event.target.value;
@@ -80,7 +100,7 @@
         event.target.style.setProperty('--value', `${value}%`);
         const nuanceLabel = ((value * 2) - 100) / absValue === -1 ? "B" : "W";
         const valueLabel = event.target.id == "opacity" ? `${absValue}%` : `${value}%`;
-        const pHover = Math.round(127 + 128*(value / 100));
+        const pHover = Math.round(127 + 128 * (value / 100));
 
         if (nuanceLabel === "B") {
             document.querySelector('enhanced').style.setProperty('--background', `rgba(0, 0, 0, ${maxOpacity * (absValue / 100)})`);
@@ -128,7 +148,6 @@
     // Handle valid image detection
     async function onValidImageDetected(file) {
         await saveBackgroundFile(file);
-        console.log('Valid image detected:', file, file.name, file.type, file.size, 'bytes');
         document.body.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
         actualLink.innerHTML = `<b>Actual : </b><a href="${URL.createObjectURL(file)}" target="_blank">${file.name}</a>`;
         localStorage.setItem('enhanced-backgroundImage-url', URL.createObjectURL(file));
@@ -140,7 +159,6 @@
         if (isValidImageFile(file)) {
             onValidImageDetected(file);
         } else {
-            console.warn('Invalid file or unsupported format:', file);
             actualLink.innerHTML = '<b>Actual : </b>File not valid or unsupported format.';
         }
         fileInput.value = '';
@@ -174,7 +192,6 @@
         if (isValidImageFile(file)) {
             onValidImageDetected(file);
         } else {
-            console.warn('Invalid file or unsupported format:', file);
             actualLink.innerHTML = '<b>Actual : </b>File not valid or unsupported format.';
         }
     });
@@ -205,60 +222,51 @@
     document.body.style.setProperty('--enhanced-blur', '1.5rem');
 
     // Changement vers un fond dit Glassmophic
-    function applyGlassmorphicEffect(objects) {
-        objects.forEach(obj => {
-            obj.style.backdropFilter = "blur(var(--enhanced-blur))";
-            obj.style.border = `1px solid rgba(252, 252, 252, 0.136)`;
-            obj.style.boxShadow = "0 0 1rem rgba(0, 0, 0, 0.4)";
+    async function applyGlassmorphicEffect(objects) {
+        objects.forEach(async (obj) => {
+            const style = `
+                <style>
+                    ${obj}::before {
+                        content: "";
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        z-index: -1;
+                        backdrop-filter: blur(var(--enhanced-blur));
+                        webkit-backdrop-filter: blur(var(--enhanced-blur));
+                        pointer-events: none;
+                    }
+                </style>
+            `
+            const element = await waitForElement(obj);
+            element.style.border = `1px solid var(--color-border)`;
+            element.style.boxShadow = "0 0 1rem rgba(0, 0, 0, 0.4)";
+            element.style.background = "var(--color-surface)";
+            element.style.position = "relative";
+            element.style.overflow = "hidden";
+            element.style.backdropFilter = "none";
+            element.insertAdjacentHTML('beforebegin', style);
         });
     }
 
     const glassmorphicObjects = [
-        document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.buttons > button"),
-        document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.group"),
-        document.querySelector("body > div > div.chat"),
-        document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.group"),
-        document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.buttons > button")
+        "body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.buttons > button",
+        "body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.group",
+        "body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.group",
+        "body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.buttons > button",
+        "body > pv-header",
+        "body > div > div.chat"
     ];
-    applyGlassmorphicEffect(glassmorphicObjects);
+    await applyGlassmorphicEffect(glassmorphicObjects);
 
     // >> Specific styles for the header
-    document.querySelector("body > pv-header").style.borderWidth = "0 0 1px 0";
     document.querySelector("body > div > div.piano > pv-canvas").style.overflow = "visible";
-    document.querySelector("body > pv-header > div.right").insertAdjacentHTML('afterbegin', `
-        <style>
-            body > pv-header {
-                position: relative;
-                z-index: 1000;
-                background: var(--color-surface);
-                border-bottom: 1px solid var(--color-border);
-            }
-
-            body > pv-header > div.left {
-                z-index: 1000;
-            }
-
-            body > pv-header > div.right .icon::before {
-                    background: var(--color-surface);
-                    backdrop-filter: blur(var(--enhanced-blur));
-                    -webkit-backdrop-filter: blur(var(--enhanced-blur));
-                    border: 1px solid var(--color-border);
-            }
-        </style>
-    `);
-
-    // Add the enhanced menu icon to the header
-    function addIcon() {
-        const header = document.querySelector("body > pv-header > div.right");
-        const menuIcon = document.createElement('div');
-        menuIcon.className = 'enhanced-custom-menu icon';
-        menuIcon.setAttribute('data-tooltip', 'Enhanced');
-        menuIcon.style.display = 'flex';
-        menuIcon.style.justifyContent = 'center';
-        menuIcon.innerHTML = '<i class="fa-solid fa-bolt-lightning" style="display: flex; justify-content: center; align-items: center;transition: 0.25s;"></i>';
-        menuIcon.addEventListener('click', () => { document.querySelector('enhanced').style.display = "flex" });
-        header.insertBefore(menuIcon, document.querySelector("body > pv-header > div.right > div.sign-out.icon"));
-    };
+    document.querySelector("pv-keys").style.backgroundColor = "black";
+    document.querySelector("pv-keys").style.boxShadow = "0 0 1rem rgba(0, 0, 0, 0.4)";
+    document.querySelector("body > pv-header").style.overflow = "visible";
+    document.querySelector("body > pv-header").style.borderWidth = "0 0 1px 0";
 
     // Appliquer les styles aux elements temporaires
     function setBeforeStyle() {
@@ -277,23 +285,64 @@
                 pointer-events: none;
             }
 
+            pv-notification {
+                backdrop-filter: blur(var(--enhanced-blur));
+                -webkit-backdrop-filter: blur(var(--enhanced-blur));
+                background: var(--color-surface);
+                border: 1px solid var(--color-border);
+                opacity: 1;
+            }
+
+            pv-notification .container {
+                border: none;
+            }
+
             pv-stepper .input {
                 background-color: transparent;
             }
 
-            pv-header::before {
-                content: "";
-                position: absolute;
-                left: 0;
-                right: 0;
-                width: 100%;
-                height: 100%;
-                backdrop-filter: blur(var(--enhanced-blur));
-                -webkit-backdrop-filter: blur(var(--enhanced-blur));
+            body > pv-header > div.left {
+                z-index: 1000;
+            }
+
+            body > pv-header > div.right .icon::before {
+                    background: var(--color-surface);
+                    backdrop-filter: blur(var(--enhanced-blur));
+                    -webkit-backdrop-filter: blur(var(--enhanced-blur));
+                    border: 1px solid var(--color-border);
+            }
+
+            body > pv-header > div.right > button.sign-in {
+                z-index: 1;
+            }
+
+            body > div.app {
+                z-index: 0;
+            }
+
+            pv-toolbar .item:hover, pv-toolbar .item.open {
+                background: var(--color-hover);
+            }
+
+            pv-toolbar .item.toggle:hover {
+                background-color: var(--color-hover);
             }
         `
         document.body.insertAdjacentElement('afterbegin', style);
     }
+
+    // Add the enhanced menu icon to the header
+    async function addIcon() {
+        const header = await waitForElement("body > pv-header > div.right");
+        const menuIcon = document.createElement('div');
+        menuIcon.className = 'enhanced-custom-menu icon';
+        menuIcon.setAttribute('data-tooltip', 'Enhanced');
+        menuIcon.style.display = 'flex';
+        menuIcon.style.justifyContent = 'center';
+        menuIcon.innerHTML = '<i class="fa-solid fa-bolt-lightning" style="display: flex; justify-content: center; align-items: center;transition: 0.25s;"></i>';
+        menuIcon.addEventListener('click', () => { document.querySelector('enhanced').style.display = "flex" });
+        header.insertBefore(menuIcon, document.querySelector("body > pv-header > div.right > button.sign-in"));
+    };
 
     // Formating to the last save
     async function formatLastSave() {
@@ -342,6 +391,6 @@
     }
 
     setBeforeStyle();
-    await addIcon();
+    addIcon();
     formatLastSave();
-})()
+})();
