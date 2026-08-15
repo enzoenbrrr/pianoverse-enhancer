@@ -159,7 +159,7 @@
     const glassmorphicObjects = [
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.buttons > button"),
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.group"),
-        document.querySelector("body > div > div.chat"), document.querySelector("body > pv-header"),
+        document.querySelector("body > div > div.chat"),
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.group"),
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.buttons > button")
     ];
@@ -170,17 +170,22 @@
     document.querySelector("body > div > div.piano > pv-canvas").style.overflow = "visible";
     document.querySelector("body > pv-header > div.right").insertAdjacentHTML('afterbegin', `
         <style>
-            body > pv-header > div.right {
+            body > pv-header {
                 position: relative;
-                z-index: 1;
+                z-index: 1000;
+                background: var(--color-surface);
+                border-bottom: 1px solid var(--color-border);
             }
 
-            body > pv-header > div.right icon:before {
-                content: "";
-                background: var(--color-surface);
-                backdrop-filter: blur(var(--enhanced-blur));
-                -webkit-backdrop-filter: blur(var(--enhanced-blur));
-                border: 1px solid var(--color-border);
+            body > pv-header > div.left {
+                z-index: 1000;
+            }
+
+            body > pv-header > div.right .icon::before {
+                    background: var(--color-surface);
+                    backdrop-filter: blur(var(--enhanced-blur));
+                    -webkit-backdrop-filter: blur(var(--enhanced-blur));
+                    border: 1px solid var(--color-border);
             }
         </style>
     `);
@@ -210,14 +215,25 @@
                 z-index: -1;
             
                 background: rgb(255 255 255 / 0%);
-                backdrop-filter: blur(2rem);
-                -webkit-backdrop-filter: blur(2rem);
+                backdrop-filter: blur(var(--enhanced-blur));
+                -webkit-backdrop-filter: blur(var(--enhanced-blur));
             
                 pointer-events: none;
             }
 
             pv-stepper .input {
                 background-color: transparent;
+            }
+
+            pv-header::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                backdrop-filter: blur(var(--enhanced-blur));
+                -webkit-backdrop-filter: blur(var(--enhanced-blur));
             }
         `
         document.body.insertAdjacentElement('afterbegin', style);
