@@ -48,7 +48,7 @@
 
             request.onerror = () => reject(request.error);
         });
-        }
+    }
     
 
 
@@ -56,7 +56,7 @@
     const maxOpacity = 0.5; // Maximum opacity value
 
     // Add enhancer menu to the DOM
-    await fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/index.html')
+    await fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/src/index.html')
         .then(response => response.text())
         .then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
@@ -223,8 +223,10 @@
     applyGlassmorphicEffect(glassmorphicObjects);
 
     // >> Specific styles for the header
-    document.querySelector("body > pv-header").style.borderWidth = "0 0 1px 0";
     document.querySelector("body > div > div.piano > pv-canvas").style.overflow = "visible";
+    document.querySelector("pv-keys").style.backgroundColor = "black";
+    document.querySelector("pv-keys").style.boxShadow = "0 0 1rem rgba(0, 0, 0, 0.4)";
+
     document.querySelector("body > pv-header > div.right").insertAdjacentHTML('afterbegin', `
         <style>
             body > pv-header {
@@ -232,6 +234,7 @@
                 z-index: 1000;
                 background: var(--color-surface);
                 border-bottom: 1px solid var(--color-border);
+                box-shadow: 0 0 1rem rgba(0, 0, 0, 0.4);
             }
 
             body > pv-header > div.left {
@@ -243,6 +246,10 @@
                     backdrop-filter: blur(var(--enhanced-blur));
                     -webkit-backdrop-filter: blur(var(--enhanced-blur));
                     border: 1px solid var(--color-border);
+            }
+
+            body > pv-header > div.right > button.sign-in {
+                z-index: 1;
             }
         </style>
     `);
@@ -257,7 +264,7 @@
         menuIcon.style.justifyContent = 'center';
         menuIcon.innerHTML = '<i class="fa-solid fa-bolt-lightning" style="display: flex; justify-content: center; align-items: center;transition: 0.25s;"></i>';
         menuIcon.addEventListener('click', () => { document.querySelector('enhanced').style.display = "flex" });
-        header.insertBefore(menuIcon, document.querySelector("body > pv-header > div.right > div.sign-out.icon"));
+        header.insertBefore(menuIcon, document.querySelector("body > pv-header > div.right > button.sign-in"));
     };
 
     // Appliquer les styles aux elements temporaires
@@ -275,6 +282,18 @@
                 -webkit-backdrop-filter: blur(var(--enhanced-blur));
             
                 pointer-events: none;
+            }
+
+            pv-notification {
+                backdrop-filter: blur(var(--enhanced-blur));
+                -webkit-backdrop-filter: blur(var(--enhanced-blur));
+                background: var(--color-surface);
+                border: 1px solid var(--color-border);
+                opacity: 1;
+            }
+
+            pv-notification .container {
+                border: none;
             }
 
             pv-stepper .input {
