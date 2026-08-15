@@ -1,4 +1,57 @@
 (async () => {
+    // Save user options
+    const DB_NAME = "enhanced-db";
+    const STORE_NAME = "background";
+
+    function openBackgroundDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, 1);
+
+            request.onupgradeneeded = () => {
+                const db = request.result;
+
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME);
+                }
+            };
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    async function saveBackgroundFile(file) {
+        const db = await openBackgroundDB();
+
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_NAME, "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+
+            store.put(file, "current-background");
+
+            transaction.oncomplete = resolve;
+            transaction.onerror = () => reject(transaction.error);
+        });
+    }
+
+    async function getBackgroundFile() {
+        const db = await openBackgroundDB();
+
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(STORE_NAME, "readonly");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get("current-background");
+
+            request.onsuccess = () => {
+                resolve(request.result || null);
+            };
+
+            request.onerror = () => reject(request.error);
+        });
+        }
+    
+
+
     const maxBlur = 5; // Maximum blur value in rem
     const maxOpacity = 0.5; // Maximum opacity value
 
@@ -17,6 +70,7 @@
         document.querySelector('enhanced').style.setProperty('--blur', `${blurValue}rem`);
         document.querySelector(`label[for="${event.target.id}"]`).textContent = `${value}%`;
         document.body.style.setProperty('--enhanced-blur', `${blurValue}rem`);
+        localStorage.setItem('enhanced-blur', value);
     });
 
     // Update the opacity value when the slider is moved
@@ -43,6 +97,7 @@
         }
 
         document.querySelector(`label[for="${event.target.id}"]`).textContent = `${event.target.id == "opacity" ? nuanceLabel : ""}${valueLabel}`;
+        localStorage.setItem('enhanced-background', value);
     });
 
     // Close the enhanced menu when the quit button is clicked
@@ -71,10 +126,12 @@
     }
 
     // Handle valid image detection
-    function onValidImageDetected(file) {
-        console.log('Valid image detected:', file.name, file.type, file.size, 'bytes');
+    async function onValidImageDetected(file) {
+        await saveBackgroundFile(file);
+        console.log('Valid image detected:', file, file.name, file.type, file.size, 'bytes');
         document.body.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
         actualLink.innerHTML = `<b>Actual : </b><a href="${URL.createObjectURL(file)}" target="_blank">${file.name}</a>`;
+        localStorage.setItem('enhanced-backgroundImage-url', URL.createObjectURL(file));
     }
 
     // When the user selects a file via the selector
@@ -204,7 +261,6 @@
     };
 
     // Appliquer les styles aux elements temporaires
-
     function setBeforeStyle() {
         const style = document.createElement('style');
         style.innerHTML = `
@@ -239,6 +295,53 @@
         document.body.insertAdjacentElement('afterbegin', style);
     }
 
+    // Formating to the last save
+    async function formatLastSave() {
+        const file = await getBackgroundFile();
+    
+        if (file) {
+            const lastSaveUrl = URL.createObjectURL(file);
+    
+            document.body.style.backgroundImage =
+                `url("${lastSaveUrl}")`;
+    
+            actualLink.innerHTML =
+                `<b>Actual : </b>
+                 <a href="${lastSaveUrl}" target="_blank">
+                     Last saved background
+                 </a>`;
+        }
+    
+        const lastSaveBlur =
+            localStorage.getItem("enhanced-blur");
+    
+        const lastSaveBackground =
+            localStorage.getItem("enhanced-background");
+    
+        const blurInput =
+            document.querySelector("enhanced .en-slider input#blur");
+    
+        if (blurInput && lastSaveBlur !== null) {
+            blurInput.value = lastSaveBlur;
+    
+            blurInput.dispatchEvent(new Event("input", {
+                bubbles: true
+            }));
+        }
+    
+        const opacityInput =
+            document.querySelector("enhanced .en-slider input#opacity");
+    
+        if (opacityInput && lastSaveBackground !== null) {
+            opacityInput.value = lastSaveBackground;
+    
+            opacityInput.dispatchEvent(new Event("input", {
+                bubbles: true
+            }));
+        }
+    }
+
     setBeforeStyle();
-    addIcon();
+    await addIcon();
+    formatLastSave();
 })()
