@@ -1,0 +1,267 @@
+<style>
+    enhanced * {
+        transition: 0.5s;
+    }
+
+    enhanced {
+        --blur: 1.5rem;
+        --background: rgba(255, 255, 255, 0.1);
+
+        transition: 0.5s;
+        z-index: 9999;
+        position: fixed;
+        width: 24rem;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        background: var(--background);
+        border-radius: 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        font-family: 'Nunito', sans-serif;
+        padding-bottom: 3rem;
+        overflow: hidden;
+    }
+
+    enhanced::before {
+        z-index: -1;
+        content: "";
+        backdrop-filter: blur(var(--blur));
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 1rem;
+    }
+
+    enhanced .container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    enhanced .container span.part-title {
+        padding-bottom: 0.5rem;
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    enhanced .container span.part-title svg {
+        color: rgba(255, 255, 255, 0.7);
+        width: 1.8rem;
+        height: 1.8rem;
+        cursor: pointer;
+        background-color: rgba(255, 255, 255, 0);
+        border-radius: 50%;
+        padding: 0.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    enhanced .container span.part-title svg:hover {
+        transition: 0.2s;
+        color: rgba(255, 255, 255, 1);
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    enhanced #dropbox {
+        transition: 0.5s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 1rem;
+        padding: 1rem;
+        font-weight: 500;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.5);
+        background-color: rgba(255, 255, 255, 0);
+    }
+
+    enhanced #dropbox:hover {
+        transition: 0.1s;
+        background-color: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    enhanced #dropbox:hover svg {
+        transition: 0.1s;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    enhanced #dropbox svg {
+        width: 4rem;
+        height: 4rem;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    enhanced #dropbox input[type="file"] {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        border-radius: 1rem;
+        cursor: pointer;
+    }
+
+    enhanced .container span#actual-link {
+        color: rgba(255, 255, 255, 0.8);
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+
+    enhanced .container span#actual-link a {
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    enhanced .container .en-slider {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    enhanced .container .en-slider div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    enhanced .container .en-slider span {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    enhanced .container .en-slider div label {
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: grid;
+        align-items: center;
+        justify-items: center;
+    }
+
+    enhanced .container .en-slider input[type="range"] {
+        position: relative;
+        --value: 30%;
+        width: 10rem;
+        height: 24px;
+        appearance: none;
+        -webkit-appearance: none;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    enhanced .container .en-slider input[type="range"]::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100% - 34px);
+        height: 8px;
+        border-radius: 8px;
+        background: linear-gradient(to right,
+                #ffffff 0 var(--value),
+                rgba(255, 255, 255, 0.2) var(--value) 100%);
+    }
+
+    enhanced .container .en-slider input[type="range"]#opacity::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: calc(100% - 34px);
+        height: 8px;
+        border-radius: 8px;
+        background: linear-gradient(to right, black, white 100%);
+    }
+
+    enhanced .container .en-slider input[type="range"]::-webkit-slider-runnable-track {
+        height: 8px;
+        border-radius: 8px;
+        background: transparent;
+    }
+
+    enhanced .container .en-slider input[type="range"]::-webkit-slider-thumb {
+        transition: 0.4s;
+        width: 32px;
+        height: 22px;
+        margin-top: -7px;
+        appearance: none;
+        -webkit-appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 2px 6px rgb(0 0 0 / 30%);
+        backdrop-filter: blur(0.25rem);
+    }
+
+    enhanced .container .en-slider input[type="range"]:active::-webkit-slider-thumb {
+        transition: 0.1s;
+        background: rgba(255, 255, 255, 1);
+        border: 1px solid rgba(255, 255, 255, 0);
+        transform: scale(1.2);
+    }
+</style>
+
+<enhanced>
+    <div class="container">
+        <span class="part-title">Pianoverse Enhancer
+            <svg id="en-quit" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 640 640"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+                <path fill="currentColor"
+                    d="M183.1 137.4C170.6 124.9 150.3 124.9 137.8 137.4C125.3 149.9 125.3 170.2 137.8 182.7L275.2 320L137.9 457.4C125.4 469.9 125.4 490.2 137.9 502.7C150.4 515.2 170.7 515.2 183.2 502.7L320.5 365.3L457.9 502.6C470.4 515.1 490.7 515.1 503.2 502.6C515.7 490.1 515.7 469.8 503.2 457.3L365.8 320L503.1 182.6C515.6 170.1 515.6 149.8 503.1 137.3C490.6 124.8 470.3 124.8 457.8 137.3L320.5 274.7L183.1 137.4z" />
+            </svg>
+        </span>
+        <div id="dropbox">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                <!--! Font Awesome Pro 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2026 Fonticons, Inc. -->
+                <path fill="currentColor"
+                    d="M160 240C160 178.1 210.1 128 272 128C311.3 128 345.8 148.2 365.8 178.8C370.2 185.5 378.9 187.9 386.1 184.5C397.5 179 410.4 176 424 176C472.6 176 512 215.4 512 264C512 278.1 508.7 291.4 502.8 303.2C500.8 307.3 500.6 312.1 502.3 316.3C504 320.5 507.5 323.9 511.8 325.4C549.2 338.5 576 374.2 576 416C576 469 533 512 480 512L176 512C114.1 512 64 461.9 64 400C64 346.3 101.8 301.4 152.2 290.5C156.5 289.6 160.3 286.9 162.5 283.1C164.7 279.3 165.4 274.8 164.2 270.5C161.5 260.8 160 250.6 160 240zM272 96C192.5 96 128 160.5 128 240C128 248 128.7 255.9 129.9 263.5C73 282.7 32 336.5 32 400C32 479.5 96.5 544 176 544L480 544C550.7 544 608 486.7 608 416C608 366.1 579.5 323 537.9 301.8C541.8 289.9 544 277.2 544 264C544 197.7 490.3 144 424 144C410.3 144 397.1 146.3 384.8 150.5C358.4 117.3 317.7 96 272 96zM331.3 260.7C325.1 254.5 314.9 254.5 308.7 260.7L236.7 332.7C230.5 338.9 230.5 349.1 236.7 355.3C242.9 361.5 253.1 361.5 259.3 355.3L304 310.6L304 432C304 440.8 311.2 448 320 448C328.8 448 336 440.8 336 432L336 310.6L380.7 355.3C386.9 361.5 397.1 361.5 403.3 355.3C409.5 349.1 409.5 338.9 403.3 332.7L331.3 260.7z" />
+            </svg>
+            <p>Choose your image or drag it here</p>
+            <input type="file" id="fileInput"
+                accept="image/jpeg, image/jpg, image/png, image/webp, image/gif, image/avif" draggable="true" />
+        </div>
+        <span id="actual-link"><b>Actual : </b>No file provided.</span>
+    </div>
+    <div class="container">
+        <span class="part-title">Options</span>
+        <div class="en-slider">
+            <span>Blur intensity</span>
+            <div>
+                <label for="blur">30%</label>
+                <input id="blur" type="range" min="0" max="100" value="30" />
+            </div>
+        </div>
+        <div class="en-slider">
+            <span>Opacity</span>
+            <div>
+                <label for="opacity">W 60%</label>
+                <input id="opacity" type="range" min="0" max="100" value="60" />
+            </div>
+        </div>
+    </div>
+
+</enhanced>
