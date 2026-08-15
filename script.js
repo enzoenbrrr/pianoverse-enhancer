@@ -3,7 +3,7 @@
     const maxOpacity = 0.5; // Maximum opacity value
 
     // Add enhancer menu to the DOM
-    fetch(chrome.runtime.getURL('index.html'))
+    await fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/index.html')
         .then(response => response.text())
         .then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
@@ -26,15 +26,20 @@
         event.target.style.setProperty('--value', `${value}%`);
         const nuanceLabel = ((value * 2) - 100) / absValue === -1 ? "B" : "W";
         const valueLabel = event.target.id == "opacity" ? `${absValue}%` : `${value}%`;
+        const pHover = Math.round(127 + 128*(value / 100));
 
         if (nuanceLabel === "B") {
             document.querySelector('enhanced').style.setProperty('--background', `rgba(0, 0, 0, ${maxOpacity * (absValue / 100)})`);
             document.body.style.setProperty('--color-surface', `rgba(0, 0, 0, ${maxOpacity * (absValue / 100)})`);
             document.body.style.setProperty('--color-surface-alt', `rgba(0, 0, 0, ${maxOpacity * (absValue / 100)})`);
+
+            document.body.style.setProperty('--color-hover', `rgba(${pHover}, ${pHover}, ${pHover}, 0.2)`);
         } else {
             document.querySelector('enhanced').style.setProperty('--background', `rgba(255, 255, 255, ${maxOpacity * (absValue / 100)})`);
             document.body.style.setProperty('--color-surface', `rgba(255, 255, 255, ${maxOpacity * (absValue / 100)})`);
             document.body.style.setProperty('--color-surface-alt', `rgba(255, 255, 255, ${maxOpacity * (absValue / 100)})`);
+
+            document.body.style.setProperty('--color-hover', `rgba(${pHover}, ${pHover}, ${pHover}, 0.2)`);
         }
 
         document.querySelector(`label[for="${event.target.id}"]`).textContent = `${event.target.id == "opacity" ? nuanceLabel : ""}${valueLabel}`;
@@ -163,7 +168,7 @@
     // >> Specific styles for the header
     document.querySelector("body > pv-header").style.borderWidth = "0 0 1px 0";
     document.querySelector("body > div > div.piano > pv-canvas").style.overflow = "visible";
-    document.querySelector("body > pv-header > div.right").insertAdjacentElement('afterbegin', `
+    document.querySelector("body > pv-header > div.right").insertAdjacentHTML('afterbegin', `
         <style>
             body > pv-header > div.right {
                 position: relative;
