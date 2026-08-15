@@ -48,7 +48,7 @@
 
             request.onerror = () => reject(request.error);
         });
-        }
+    }
     
 
 
@@ -56,7 +56,7 @@
     const maxOpacity = 0.5; // Maximum opacity value
 
     // Add enhancer menu to the DOM
-    await fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/index.html')
+    await fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/src/index.html')
         .then(response => response.text())
         .then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
@@ -128,7 +128,6 @@
     // Handle valid image detection
     async function onValidImageDetected(file) {
         await saveBackgroundFile(file);
-        console.log('Valid image detected:', file, file.name, file.type, file.size, 'bytes');
         document.body.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
         actualLink.innerHTML = `<b>Actual : </b><a href="${URL.createObjectURL(file)}" target="_blank">${file.name}</a>`;
         localStorage.setItem('enhanced-backgroundImage-url', URL.createObjectURL(file));
@@ -140,7 +139,6 @@
         if (isValidImageFile(file)) {
             onValidImageDetected(file);
         } else {
-            console.warn('Invalid file or unsupported format:', file);
             actualLink.innerHTML = '<b>Actual : </b>File not valid or unsupported format.';
         }
         fileInput.value = '';
@@ -174,7 +172,6 @@
         if (isValidImageFile(file)) {
             onValidImageDetected(file);
         } else {
-            console.warn('Invalid file or unsupported format:', file);
             actualLink.innerHTML = '<b>Actual : </b>File not valid or unsupported format.';
         }
     });
@@ -216,22 +213,24 @@
     const glassmorphicObjects = [
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.buttons > button"),
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.left > div.group"),
-        document.querySelector("body > div > div.chat"),
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.group"),
         document.querySelector("body > div > div.piano > pv-canvas > pv-toolbar > div > div.side-group.right > div.buttons > button")
     ];
     applyGlassmorphicEffect(glassmorphicObjects);
 
     // >> Specific styles for the header
-    document.querySelector("body > pv-header").style.borderWidth = "0 0 1px 0";
     document.querySelector("body > div > div.piano > pv-canvas").style.overflow = "visible";
+    document.querySelector("pv-keys").style.backgroundColor = "black";
+    document.querySelector("pv-keys").style.boxShadow = "0 0 1rem rgba(0, 0, 0, 0.4)";
+
     document.querySelector("body > pv-header > div.right").insertAdjacentHTML('afterbegin', `
         <style>
             body > pv-header {
                 position: relative;
-                z-index: 1000;
+                z-index: 1;
                 background: var(--color-surface);
                 border-bottom: 1px solid var(--color-border);
+                box-shadow: 0 0 1rem rgba(0, 0, 0, 0.4);
             }
 
             body > pv-header > div.left {
@@ -243,6 +242,10 @@
                     backdrop-filter: blur(var(--enhanced-blur));
                     -webkit-backdrop-filter: blur(var(--enhanced-blur));
                     border: 1px solid var(--color-border);
+            }
+
+            body > pv-header > div.right > button.sign-in {
+                z-index: 1;
             }
         </style>
     `);
@@ -257,7 +260,7 @@
         menuIcon.style.justifyContent = 'center';
         menuIcon.innerHTML = '<i class="fa-solid fa-bolt-lightning" style="display: flex; justify-content: center; align-items: center;transition: 0.25s;"></i>';
         menuIcon.addEventListener('click', () => { document.querySelector('enhanced').style.display = "flex" });
-        header.insertBefore(menuIcon, document.querySelector("body > pv-header > div.right > div.sign-out.icon"));
+        header.insertBefore(menuIcon, document.querySelector("body > pv-header > div.right > button.sign-in"));
     };
 
     // Appliquer les styles aux elements temporaires
@@ -277,6 +280,18 @@
                 pointer-events: none;
             }
 
+            pv-notification {
+                backdrop-filter: blur(var(--enhanced-blur));
+                -webkit-backdrop-filter: blur(var(--enhanced-blur));
+                background: var(--color-surface);
+                border: 1px solid var(--color-border);
+                opacity: 1;
+            }
+
+            pv-notification .container {
+                border: none;
+            }
+
             pv-stepper .input {
                 background-color: transparent;
             }
@@ -288,6 +303,27 @@
                 right: 0;
                 width: 100%;
                 height: 100%;
+                backdrop-filter: blur(var(--enhanced-blur));
+                -webkit-backdrop-filter: blur(var(--enhanced-blur));
+            }
+
+            body > div.app {
+                z-index: 0;
+            }
+
+            body > div > div.chat {
+                position: relative;
+                z-index: 1;
+                background: var(--color-surface);
+                border-bottom: 1px solid var(--color-border);
+                box-shadow: 0 0 1rem rgba(0, 0, 0, 0.4);
+            }
+
+            body > div > div.chat::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: -1;
                 backdrop-filter: blur(var(--enhanced-blur));
                 -webkit-backdrop-filter: blur(var(--enhanced-blur));
             }
