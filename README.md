@@ -1,4 +1,4 @@
-# ✨ Pianoverse enhancer for you !
+# ✨ Pianoverse enhancer
 
 This repository makes [**Pianoverse**](https://pianoverse.net) look amazing by allowing you to add a background using an image of your choice with glassmorphism design.
 
@@ -10,9 +10,9 @@ This repository makes [**Pianoverse**](https://pianoverse.net) look amazing by a
 
 - **Blur :** In a range of **0** to **5rem**.
 
-- **Opacity :** The opacity varies from **0** to **0.5**, whether in black or white.
+- **Opacity :** Varies from **0** to **0.5**, whether in black or white.
 
-- **Saving options :** By **using IndexedDB**, the selected options and the image will be saved for the next session..
+- **Saving options :** By **using IndexedDB**, the selected options and the image will be saved for the next session.
 
 |Allowed Formats|
 |---------------|
