@@ -223,33 +223,6 @@
     document.querySelector("pv-keys").style.backgroundColor = "black";
     document.querySelector("pv-keys").style.boxShadow = "0 0 1rem rgba(0, 0, 0, 0.4)";
 
-    document.querySelector("body > pv-header > div.right").insertAdjacentHTML('afterbegin', `
-        <style>
-            body > pv-header {
-                position: relative;
-                z-index: 1;
-                background: var(--color-surface);
-                border-bottom: 1px solid var(--color-border);
-                box-shadow: 0 0 1rem rgba(0, 0, 0, 0.4);
-            }
-
-            body > pv-header > div.left {
-                z-index: 1000;
-            }
-
-            body > pv-header > div.right .icon::before {
-                    background: var(--color-surface);
-                    backdrop-filter: blur(var(--enhanced-blur));
-                    -webkit-backdrop-filter: blur(var(--enhanced-blur));
-                    border: 1px solid var(--color-border);
-            }
-
-            body > pv-header > div.right > button.sign-in {
-                z-index: 1;
-            }
-        </style>
-    `);
-
     // Add the enhanced menu icon to the header
     function addIcon() {
         const header = document.querySelector("body > pv-header > div.right");
@@ -296,6 +269,14 @@
                 background-color: transparent;
             }
 
+            body > pv-header {
+                position: relative;
+                z-index: 1;
+                background: var(--color-surface);
+                border-bottom: 1px solid var(--color-border);
+                box-shadow: 0 0 1rem rgba(0, 0, 0, 0.4);
+            }
+
             pv-header::before {
                 content: "";
                 position: absolute;
@@ -307,6 +288,21 @@
                 -webkit-backdrop-filter: blur(var(--enhanced-blur));
             }
 
+            body > pv-header > div.left {
+                z-index: 1000;
+            }
+
+            body > pv-header > div.right .icon::before {
+                    background: var(--color-surface);
+                    backdrop-filter: blur(var(--enhanced-blur));
+                    -webkit-backdrop-filter: blur(var(--enhanced-blur));
+                    border: 1px solid var(--color-border);
+            }
+
+            body > pv-header > div.right > button.sign-in {
+                z-index: 1;
+            }
+
             body > div.app {
                 z-index: 0;
             }
@@ -315,7 +311,8 @@
                 position: relative;
                 z-index: 1;
                 background: var(--color-surface);
-                border-bottom: 1px solid var(--color-border);
+                border: 1px solid var(--color-border);
+                overflow: hidden;
                 box-shadow: 0 0 1rem rgba(0, 0, 0, 0.4);
             }
 
@@ -378,6 +375,6 @@
     }
 
     setBeforeStyle();
-    await addIcon();
+    addIcon();
     formatLastSave();
 })()
