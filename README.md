@@ -62,7 +62,7 @@ Access the **[extension.user.js](extension.user.js)** file, click the `raw` butt
 (function() {
     'use strict';
 
-    fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/script.js')
+    fetch('https://raw.githubusercontent.com/enzoenbrrr/pianoverse-enhancer/refs/heads/main/src/script.js')
     .then(response => response.text())
     .then(script => {eval(script);})
 })();
