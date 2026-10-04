@@ -120,6 +120,26 @@
         localStorage.setItem('enhanced-background', value);
     });
 
+    // Gestion de la position de l'image de fond
+    const positionButtons = document.querySelectorAll('enhanced #bg-position-group button');
+    positionButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const currentBtn = e.currentTarget;
+            
+            // Retirer la classe 'active' de tous les boutons
+            positionButtons.forEach(b => b.classList.remove('active'));
+            // L'ajouter au bouton cliqué
+            currentBtn.classList.add('active');
+            
+            // Récupérer et appliquer la nouvelle position
+            const pos = currentBtn.getAttribute('data-pos');
+            document.body.style.backgroundPosition = pos;
+            
+            // Sauvegarder dans le localStorage
+            localStorage.setItem('enhanced-bg-position', pos);
+        });
+    });
+
     // Close the enhanced menu when the quit button is clicked
     document.querySelector('#en-quit').addEventListener('click', () => {
         document.querySelector('enhanced').style.display = "none";
@@ -145,12 +165,97 @@
         return ALLOWED_TYPES.includes(file.type.toLowerCase());
     }
 
+    // ---> NOUVEL ALGORITHME : EXTRAIRE LA COULEUR LA PLUS VIBRANTE
+    function getVibrantColor(imgEl) {
+        const defaultColor = '#4e68c7'; // Couleur par défaut
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) return defaultColor;
+
+        // Miniature pour traiter rapidement
+        canvas.width = 64;
+        canvas.height = 64;
+
+        try {
+            context.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
+            const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+            
+            // Création de 10 catégories (bins) pour classer les couleurs par teinte
+            const bins = Array(10).fill(null).map(() => ({ r: 0, g: 0, b: 0, count: 0, weight: 0 }));
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i], g = data[i+1], b = data[i+2];
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const delta = max - min; // Différence entre couleurs fortes/faibles = vivacité
+                
+                // On zappe les grisés (delta faible), et les noirs/blancs extrêmes
+                if (delta < 30 || max < 50 || max > 240) continue;
+                
+                // Calcul de la teinte (Hue de 0 à 360)
+                let h = 0;
+                if (max === r) h = ((g - b) / delta) % 6;
+                else if (max === g) h = (b - r) / delta + 2;
+                else h = (r - g) / delta + 4;
+                
+                h = Math.round(h * 60);
+                if (h < 0) h += 360;
+                
+                // On met le pixel dans la bonne boîte
+                const binIndex = Math.floor(h / 36) % 10;
+                const weight = delta; // Plus c'est vif, plus ça a du poids
+                
+                bins[binIndex].r += r;
+                bins[binIndex].g += g;
+                bins[binIndex].b += b;
+                bins[binIndex].count++;
+                bins[binIndex].weight += weight;
+            }
+            
+            // Trouver la boîte qui regroupe le plus de couleurs vives
+            let bestBin = null;
+            let maxWeight = 0;
+            for (const bin of bins) {
+                if (bin.weight > maxWeight) {
+                    maxWeight = bin.weight;
+                    bestBin = bin;
+                }
+            }
+            
+            // Si on a trouvé une belle couleur, on fait la moyenne juste pour ce groupe
+            if (bestBin && bestBin.count > 0) {
+                return `rgb(${~~(bestBin.r / bestBin.count)}, ${~~(bestBin.g / bestBin.count)}, ${~~(bestBin.b / bestBin.count)})`;
+            }
+            return defaultColor;
+        } catch (e) {
+            return defaultColor;
+        }
+    }
+
+    // ---> FONCTION POUR APPLIQUER L'ACCENT COLOR
+    function applyAccentColor(url) {
+        const img = new Image();
+        img.onload = () => {
+            const color = getVibrantColor(img);
+            document.body.style.setProperty('--color-accent', color);
+            localStorage.setItem('enhanced-accent-color', color);
+        };
+        img.onerror = () => {
+            document.body.style.setProperty('--color-accent', '#4e68c7');
+        };
+        img.src = url;
+    }
+
     // Handle valid image detection
     async function onValidImageDetected(file) {
         await saveBackgroundFile(file);
-        document.body.style.backgroundImage = `url(${URL.createObjectURL(file)})`;
-        actualLink.innerHTML = `<b>Actual : </b><a href="${URL.createObjectURL(file)}" target="_blank">${file.name}</a>`;
-        localStorage.setItem('enhanced-backgroundImage-url', URL.createObjectURL(file));
+        const url = URL.createObjectURL(file);
+        document.body.style.backgroundImage = `url(${url})`;
+        actualLink.innerHTML = `<b>Actual : </b><a href="${url}" target="_blank">${file.name}</a>`;
+        localStorage.setItem('enhanced-backgroundImage-url', url);
+        
+        // Appliquer dynamiquement la couleur principale
+        applyAccentColor(url);
     }
 
     // When the user selects a file via the selector
@@ -200,6 +305,9 @@
     document.querySelector('body').style.backgroundImage = `none`;
     document.querySelector('body').style.backgroundPosition = 'center';
     document.querySelector('body').style.backgroundSize = 'cover';
+    
+    // La transition douce d'1 seconde pour la position du background
+    document.querySelector('body').style.transition = 'background-position 500ms ease-in-out';
 
     // Remove the background from the app container
     document.querySelector("body > main.app").style.background = "none";
@@ -218,8 +326,10 @@
     document.body.style.setProperty('--color-border-alt', `rgba(252, 252, 252, 0.136)`);
 
     document.body.style.setProperty('--color-notice-background', 'rgba(255, 255, 255, 0.1)');
-
     document.body.style.setProperty('--enhanced-blur', '1.5rem');
+
+    // Mettre la couleur par défaut au démarrage
+    document.body.style.setProperty('--color-accent', '#4e68c7');
 
     // Changement vers un fond dit Glassmophic
     async function applyGlassmorphicEffect(objects) {
@@ -359,6 +469,14 @@
                  <a href="${lastSaveUrl}" target="_blank">
                      Last saved background
                  </a>`;
+            
+            // Restauration ou calcul de l'accent color
+            const savedAccent = localStorage.getItem("enhanced-accent-color");
+            if (savedAccent) {
+                document.body.style.setProperty('--color-accent', savedAccent);
+            } else {
+                applyAccentColor(lastSaveUrl);
+            }
         }
     
         const lastSaveBlur =
@@ -366,6 +484,9 @@
     
         const lastSaveBackground =
             localStorage.getItem("enhanced-background");
+            
+        // Restauration de la position de l'image de fond
+        const lastSaveBgPosition = localStorage.getItem("enhanced-bg-position");
     
         const blurInput =
             document.querySelector("enhanced .en-slider input#blur");
@@ -387,6 +508,19 @@
             opacityInput.dispatchEvent(new Event("input", {
                 bubbles: true
             }));
+        }
+        
+        // Appliquer l'ancienne position ou centré par défaut
+        if (lastSaveBgPosition) {
+            document.body.style.backgroundPosition = lastSaveBgPosition;
+            
+            // Remettre la classe active sur le bon bouton
+            const positionButtons = document.querySelectorAll('enhanced #bg-position-group button');
+            if(positionButtons.length > 0) {
+                positionButtons.forEach(b => b.classList.remove('active'));
+                const activeBtn = document.querySelector(`enhanced #bg-position-group button[data-pos="${lastSaveBgPosition}"]`);
+                if (activeBtn) activeBtn.classList.add('active');
+            }
         }
     }
 

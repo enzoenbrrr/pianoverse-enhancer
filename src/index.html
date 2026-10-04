@@ -10,7 +10,7 @@
         transition: 0.5s;
         z-index: 9999;
         position: fixed;
-        width: 24rem;
+        width: 28rem;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
@@ -223,6 +223,36 @@
         border: 1px solid rgba(255, 255, 255, 0);
         transform: scale(1.2);
     }
+
+    /* Styles pour les boutons de position */
+    enhanced .container .en-btn-group {
+        display: flex;
+        gap: 0.35rem;
+    }
+
+    enhanced .container .en-btn-group button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.75);
+        border-radius: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        cursor: pointer;
+        font-size: 0.75rem;
+        font-family: inherit;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    enhanced .container .en-btn-group button:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 1);
+    }
+
+    enhanced .container .en-btn-group button.active {
+        background: rgba(255, 255, 255, 0.35);
+        color: rgba(255, 255, 255, 1);
+        border-color: rgba(255, 255, 255, 0.6);
+    }
 </style>
 
 <enhanced>
@@ -262,6 +292,16 @@
                 <input id="opacity" type="range" min="0" max="100" value="60" />
             </div>
         </div>
+        <!-- Nouvelle section pour la position du background -->
+        <div class="en-slider">
+            <span>Image Position</span>
+            <div class="en-btn-group" id="bg-position-group">
+                <button data-pos="left">Left</button>
+                <button data-pos="top">Top</button>
+                <button data-pos="center" class="active">Center</button>
+                <button data-pos="bottom">Bottom</button>
+                <button data-pos="right">Right</button>
+            </div>
+        </div>
     </div>
-
 </enhanced>
